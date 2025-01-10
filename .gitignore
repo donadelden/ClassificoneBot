@@ -1,0 +1,5 @@
+venv
+.credentials
+.google-creds.json
+.cache
+log/main.log
