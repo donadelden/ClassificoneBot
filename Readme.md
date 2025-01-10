@@ -2,7 +2,7 @@
 
 With my friends, we started this fun chat where we share new music during the year, and then we met at the ned of the year to rank our favorite albums and talk about music and stuff. This tools help up in two keeping track of what we shared. In particular it can 1) add the most *popular*<sup>1</sup> song to a Spotify playlist, and 2) add info about the album on a Google Sheet. 
 
-# How to run
+## How to run
 1) You need some credentials and stuff that you can fill in the `.credentials` file. You can find a template on the repository. Google authentication is instead placed in `.google-creds.json`, which is directly downloaded from the API dashboard. 
 2) (Optional but reccomended) Create a virtual environment: `python3 -m venv venv` and activate it `source venv/bin/activate`
 3) Install requirements `pip3 install -r requirements.txt`
@@ -11,8 +11,8 @@ With my friends, we started this fun chat where we share new music during the ye
 Logs are saved in `log/main.log`. At the first run both Spotify and Google will ask for authentication. 
 I usually run it inside a screen so I don't need to keep my terminal open.
 
-# Possible improvements and issues
-- I would love to automatically add the nationality of the artist in the google list, but it is not provided by the APIs.
+## Possible improvements and issues
+- I would love to automatically add the nationality of the artist in the google list, but it is not provided by the APIs. Same for genre, even if I'm confident that there should be a way to do so.
 - Adding the most *x* popular song for each album.
 - You tell me!
 
