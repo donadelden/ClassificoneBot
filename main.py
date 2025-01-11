@@ -65,22 +65,36 @@ async def parse_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
                 type = spotify_url.split("/")[-2]
                 uri = f"spotify:{type}:{id}"
 
-                msg = ""
+                # process albums
+                if type == "album":
+                    msg = ""
+                    if not add_best_song_to_playlist(uri):
+                        #await update.message.reply_text("[!] Best track already in playlist.")
+                        msg += "[!] Best track already in playlist.\n"
+                    
+                    if not add_to_google_sheet_by_uri(uri, comment=clean_message.strip()):
+                        #await update.message.reply_text("[!] Album already in Google Sheet or not released in this year.")  
+                        msg += "[!] Album already in Google Sheet or not released in this year.\n"
+                    if msg:
+                        await update.message.reply_text(msg.strip())
+                    else:
+                        await update.message.reply_text(f"Added to the playlist and in the list! :)")
+                elif type == "track":
+                    
+                    # check the year of the track
+                    track_info = sp.track(uri)
+                    year = track_info["album"]["release_date"].split("-")[0]
 
-                if not add_best_song_to_playlist(uri):
-                    #await update.message.reply_text("[!] Best track already in playlist.")
-                    msg += "[!] Best track already in playlist.\n"
-                
-                if not add_to_google_sheet_by_uri(uri, comment=clean_message.strip()):
-                    #await update.message.reply_text("[!] Album already in Google Sheet or not released in this year.")  
-                    msg += "[!] Album already in Google Sheet or not released in this year.\n"
-                
-                if msg:
-                    await update.message.reply_text(msg.strip())
+                    if year != "2025":  # TODO: this should be the current year, but then there should be also another playlist... for the future...
+                        await update.message.reply_text(f"[!] Track has been released in {year}, therefore I'm not adding it to the playlist.")
+                    elif add_track_to_playlist(track_info["name"], uri, allow_duplicates=False):
+                        await update.message.reply_text(f"Track {track_info["name"]} added to the playlist! :)")
+                    else:
+                        await update.message.reply_text(f"Track {track_info["name"]} is already in the playlist.")
                 else:
-                    await update.message.reply_text(f"Added to the playlist and in the list! :)")
+                    logger.warning(f"[x] URL with type {type} is not supported.")
             else:
-                pass #await update.message.reply_text("No Spotify URL found (second check).")
+                logger.warning(f"[x] No Spotify URL found (second check). URL: {match}")
         else:
             pass #await update.message.reply_text("No Spotify URL found.")
     else:
@@ -133,15 +147,22 @@ def add_best_song_to_playlist(album_uri: str, allow_duplicates: bool = False) ->
     popular_tracks = get_album_tracks_by_popularity(album_uri)
     selected_track = popular_tracks[0]
 
+    return add_track_to_playlist(selected_track[0], selected_track[2], allow_duplicates)
+
+
+def add_track_to_playlist(track_name: str, track_uri: str, allow_duplicates: bool = False) -> bool:
+    """Add the selected track to the playlist.
+    If allow_duplicates is True, the track will be added even if it is already in the playlist."""
+
     # Check if the track is already in the playlist
     playlist_tracks = sp.playlist_tracks(PLAYLIST_URI)
     track_uris = [item["track"]["uri"] for item in playlist_tracks["items"]]
 
-    if allow_duplicates or selected_track[2] not in track_uris:
-        sp.playlist_add_items(PLAYLIST_URI, [popular_tracks[0][2]])
+    if allow_duplicates or track_uri not in track_uris:
+        sp.playlist_add_items(PLAYLIST_URI, [track_uri])
         return True
     else:
-        logger.info(f"[!] Track {selected_track[0]} is already in the playlist.")
+        logger.info(f"[!] Track {track_name} is already in the playlist.")
         return False
 
 
