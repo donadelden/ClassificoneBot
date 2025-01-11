@@ -88,9 +88,9 @@ async def parse_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
                     if year != "2025":  # TODO: this should be the current year, but then there should be also another playlist... for the future...
                         await update.message.reply_text(f"[!] Track has been released in {year}, therefore I'm not adding it to the playlist.")
                     elif add_track_to_playlist(track_info["name"], uri, allow_duplicates=False):
-                        await update.message.reply_text(f"Track {track_info["name"]} added to the playlist! :)")
+                        await update.message.reply_text(f"Track {track_info['name']} added to the playlist! :)")
                     else:
-                        await update.message.reply_text(f"Track {track_info["name"]} is already in the playlist.")
+                        await update.message.reply_text(f"Track {track_info['name']} is already in the playlist.")
                 else:
                     logger.warning(f"[x] URL with type {type} is not supported.")
             else:
