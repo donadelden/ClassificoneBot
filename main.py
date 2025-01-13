@@ -66,19 +66,24 @@ async def parse_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
                 uri = f"spotify:{type}:{id}"
 
                 # process albums
-                if type == "album":
-                    msg = ""
-                    if not add_best_song_to_playlist(uri):
-                        #await update.message.reply_text("[!] Best track already in playlist.")
-                        msg += "[!] Best track already in playlist.\n"
-                    
-                    if not add_to_google_sheet_by_uri(uri, comment=clean_message.strip()):
-                        #await update.message.reply_text("[!] Album already in Google Sheet or not released in this year.")  
-                        msg += "[!] Album already in Google Sheet or not released in this year.\n"
-                    if msg:
-                        await update.message.reply_text(msg.strip())
+                if type == "album": 
+                    album_info = get_album_info(uri)
+                    if str(album_info["year"]) != '2025': # TODO: this should be the current year, but then there should be also another playlist... for the future...
+                        await update.message.reply_text(f"[!] Album has been released in {album_info['year']}, therefore I'm skipping it.")
                     else:
-                        await update.message.reply_text(f"Added to the playlist and in the list! :)")
+                        msg = ""
+                        if not add_best_song_to_playlist(uri):
+                            #await update.message.reply_text("[!] Best track already in playlist.")
+                            msg += "[!] Best track already in playlist.\n"
+                        
+                        if not add_to_google_sheet_by_uri(uri, comment=clean_message.strip()):
+                            #await update.message.reply_text("[!] Album already in Google Sheet or not released in this year.")  
+                            msg += "[!] Album already in Google Sheet.\n"
+                        if msg:
+                            await update.message.reply_text(msg.strip())
+                        else:
+                            await update.message.reply_text(f"Added to the playlist and in the list! :)")
+
                 elif type == "track":
                     
                     # check the year of the track
