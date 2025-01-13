@@ -59,7 +59,9 @@ async def parse_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             match = url_pattern.search(message_text)
             clean_message = re.sub(url_pattern, "", message_text)
 
-            if match:
+            if "#ignore" in clean_message.lower():
+                await update.message.reply_text(f"[!] Ignoring the album as requested by the #ignore tag.")
+            elif match:
                 spotify_url = match.group(0)
                 id = spotify_url.split("/")[-1].split("?")[0]
                 type = spotify_url.split("/")[-2]
