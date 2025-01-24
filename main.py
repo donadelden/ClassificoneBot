@@ -84,7 +84,7 @@ async def parse_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
                         if msg:
                             await update.message.reply_text(msg.strip())
                         else:
-                            await update.message.reply_text(f"Added to the playlist and in the list! :)")
+                            await update.message.reply_text(f"Album {album_info["title"]} by {album_info["artist"]} to the playlist and in the list! :)")
 
                 elif type == "track":
                     
